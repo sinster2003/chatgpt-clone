@@ -2,13 +2,15 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
 
 const onboardUser = async () => {
     try {
         const user = await currentUser();
         
         if(!user) {
-            throw new Error("Unauthenticated! Please sign in to the application.");
+            // throw new Error("Unauthenticated! Please sign in to the application."); // ideally toast can be rendered
+            redirect("/sign-in");
         }
 
         await prisma.user.upsert({
