@@ -1,4 +1,4 @@
-import onboardUser from "@/features/auth/onboard";
+import onboardUser from "@/features/auth/actions/onboard";
 import { auth } from "@clerk/nextjs/server";
 
 const onboardLayout = async ({ children }: { children: React.ReactNode }) => {
