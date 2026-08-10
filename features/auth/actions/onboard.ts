@@ -9,7 +9,7 @@ const onboardUser = async () => {
         const user = await currentUser();
         
         if(!user) {
-            // throw new Error("Unauthenticated! Please sign in to the application."); // ideally toast can be rendered
+            // throw new Error("Unauthenticated! Please sign in to the application."); // wip: ideally toast can be rendered
             redirect("/sign-in");
         }
 
