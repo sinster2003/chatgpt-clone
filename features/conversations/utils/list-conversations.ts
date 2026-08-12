@@ -1,11 +1,12 @@
 import { requireUser } from "@/features/auth/utils/require-user";
 import { prisma } from "@/lib/db";
+import { ConversationRecord } from "./types";
 
 /*
   List conversations of a particular user -> server function (controller)
 */
 
-export async function listConversations() {
+export async function listConversations(): Promise<ConversationRecord[]> {
   try {
     const { id: userId } = await requireUser();
 

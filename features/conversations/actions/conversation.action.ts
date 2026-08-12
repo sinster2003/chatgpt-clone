@@ -38,18 +38,18 @@ export async function createConversation(title?: string)
 export async function deleteConversation(conversationId: string)
   : Promise<{ id: string }> {
   try {
-    await assertOwnConversation(conversationId);
+    const conversation = await assertOwnConversation(conversationId);
 
     await prisma.conversation.delete({
       where: {
-        id: conversationId
+        id: conversation.id
       }
     });
 
     revalidatePath("/"); // after deletion of conversation, cache may be stale -> refetch on next render
 
     return {
-      id: conversationId
+      id: conversation.id
     };
   }
   catch (error) {
@@ -65,11 +65,11 @@ export async function updateConversation(conversationId: string,
   }) : 
   Promise<ConversationRecord> {
   try {
-    await assertOwnConversation(conversationId);
-    
-    const conversation = await prisma.conversation.update({
+    const conversation = await assertOwnConversation(conversationId);
+
+    const updatedConversation = await prisma.conversation.update({
       where: {
-        id: conversationId
+        id: conversation.id
       },
       data: {
         ...(data.title !== undefined ? { title: data.title.trim() || "New Chat" } : {}),
@@ -79,9 +79,9 @@ export async function updateConversation(conversationId: string,
     });
 
     revalidatePath("/");
-    revalidatePath(`/c/${conversationId}`);
+    revalidatePath(`/c/${conversation.id}`);
 
-    return conversation;
+    return updatedConversation;
   }
   catch (error) {
     throw new Error("Failed to delete conversation. Something went wrong.");
