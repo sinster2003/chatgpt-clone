@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/db";
 import { ConversationRecord } from "../utils/types";
 import { revalidatePath } from "next/cache";
+import { requireUser } from "@/features/auth/utils/require-user";
+import { assertOwnConversation } from "../utils/own-conversation";
 
 /*
     **Conversation data mutation server actions**
@@ -10,15 +12,21 @@ import { revalidatePath } from "next/cache";
     * UserId can be fetched as a server action but since it is a GET
     request following better practices, instead of server action use React / Tanstack
     query to fetch user record and pass userId as a param.
+
+    * UserId is fetched as a server function, not a server action
+
+    * listConversation is created server function
 */
 
-export async function createConversation(userId: string, title: string)
+export async function createConversation(title?: string)
   : Promise<ConversationRecord> {
-  try {
-    return await prisma.conversation.create({
+    try {
+      const { id: userId } = await requireUser();
+
+      return await prisma.conversation.create({
       data: {
         userId,
-        title: title.trim() || "New Chat"
+        title: title?.trim() || "New Chat"
       }
     });
   }
@@ -30,6 +38,8 @@ export async function createConversation(userId: string, title: string)
 export async function deleteConversation(conversationId: string)
   : Promise<{ id: string }> {
   try {
+    await assertOwnConversation(conversationId);
+
     await prisma.conversation.delete({
       where: {
         id: conversationId
@@ -55,6 +65,8 @@ export async function updateConversation(conversationId: string,
   }) : 
   Promise<ConversationRecord> {
   try {
+    await assertOwnConversation(conversationId);
+    
     const conversation = await prisma.conversation.update({
       where: {
         id: conversationId
